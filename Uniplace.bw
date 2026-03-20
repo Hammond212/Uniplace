@@ -1,0 +1,156 @@
+uni-marketplace/
+│── pages/
+│   │── index.js
+│   │── upload.js
+│   │── api/
+│       │── products.js
+│
+│── components/
+│   │── ProductCard.js
+│
+│── data/
+│   │── store.js
+│
+│── package.json
+│── README.md
+1. ⚙️ package.json
+{
+  "name": "uni-marketplace",
+  "version": "1.0.0",
+  "dependencies": {
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  }
+}
+2. 🧠 Simple Data Store (temporary database)
+data/store.js
+let products = [];
+
+export default function handler(req, res) {
+  if (req.method === "GET") {
+    return res.status(200).json(products);
+  }
+
+  if (req.method === "POST") {
+    const { name, price, description, seller } = req.body;
+
+    const newProduct = {
+      id: Date.now(),
+      name,
+      price,
+      description,
+      seller
+    };
+
+    products.push(newProduct);
+
+    return res.status(201).json(newProduct);
+  }
+
+  res.status(405).json({ message: "Method not allowed" });
+}
+3. 🔌 API Route
+pages/api/products.js
+import store from "../../data/store";
+
+export default store;
+4. 🏠 Home Page (View Products)
+pages/index.js
+import { useEffect, useState } from "react";
+import ProductCard from "../components/ProductCard";
+
+export default function Home() {
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    fetch("/api/products")
+      .then(res => res.json())
+      .then(data => setProducts(data));
+  }, []);
+
+  return (
+    <div style={{ padding: 20 }}>
+      <h1>🎓 Uni Marketplace</h1>
+      <a href="/upload">Upload Product</a>
+
+      <div style={{ display: "grid", gap: 10, marginTop: 20 }}>
+        {products.map(p => (
+          <ProductCard key={p.id} product={p} />
+        ))}
+      </div>
+    </div>
+  );
+}
+5. 🧾 Product Card Component
+components/ProductCard.js
+export default function ProductCard({ product }) {
+  return (
+    <div style={{ border: "1px solid #ccc", padding: 10 }}>
+      <h3>{product.name}</h3>
+      <p>{product.description}</p>
+      <p><b>Price:</b> P{product.price}</p>
+      <p><i>Seller: {product.seller}</i></p>
+    </div>
+  );
+}
+6. ➕ Upload Page
+pages/upload.js
+import { useState } from "react";
+import { useRouter } from "next/router";
+
+export default function Upload() {
+  const router = useRouter();
+
+  const [form, setForm] = useState({
+    name: "",
+    price: "",
+    description: "",
+    seller: ""
+  });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    await fetch("/api/products", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form)
+    });
+
+    router.push("/");
+  };
+
+  return (
+    <div style={{ padding: 20 }}>
+      <h1>Upload Product / Service</h1>
+
+      <form onSubmit={handleSubmit}>
+        <input placeholder="Name" onChange={e => setForm({ ...form, name: e.target.value })} />
+        <br />
+        <input placeholder="Price" onChange={e => setForm({ ...form, price: e.target.value })} />
+        <br />
+        <input placeholder="Seller Name" onChange={e => setForm({ ...form, seller: e.target.value })} />
+        <br />
+        <textarea placeholder="Description" onChange={e => setForm({ ...form, description: e.target.value })} />
+        <br />
+        <button type="submit">Upload</button>
+      </form>
+    </div>
+  );
+}
+🚀 How to Run It
+npx create-next-app uni-marketplace
+cd uni-marketplace
+npm run dev
+
+Then replace files with the ones above.
+
+Open:
+
+http://localhost:3000
