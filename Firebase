@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Uni Marketplace</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
+
+<style>
+body { font-family: Arial; margin: 0; background: #f4f4f4; }
+.container { max-width: 900px; margin: auto; padding: 20px; }
+
+.form-box, .auth-box {
+    background: white;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+}
+
+input, textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.card {
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+button {
+    padding: 10px;
+    background: #1e88e5;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🎓 Uni Marketplace</h1>
+
+<!-- AUTH -->
+<div class="auth-box">
+    <h3>Login / Signup</h3>
+    <input id="email" placeholder="Email">
+    <input id="password" type="password" placeholder="Password">
+    <button onclick="signup()">Sign Up</button>
+    <button onclick="login()">Login</button>
+    <button onclick="logout()">Logout</button>
+</div>
+
+<!-- FORM -->
+<div class="form-box">
+    <h3>Add Product</h3>
+    <input id="name" placeholder="Product Name">
+    <input id="price" placeholder="Price">
+    <textarea id="description" placeholder="Description"></textarea>
+    <button onclick="addProduct()">Post</button>
+</div>
+
+<!-- PRODUCTS -->
+<div class="grid" id="products"></div>
+
+</div>
+
+<script>
+// 🔥 PASTE YOUR FIREBASE CONFIG HERE
+const firebaseConfig = {
+  apiKey: "YOUR_KEY",
+  authDomain: "YOUR_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+};
+
+// INIT
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
+
+// AUTH
+function signup() {
+    auth.createUserWithEmailAndPassword(
+        email.value, password.value
+    );
+}
+
+function login() {
+    auth.signInWithEmailAndPassword(
+        email.value, password.value
+    );
+}
+
+function logout() {
+    auth.signOut();
+}
+
+// ADD PRODUCT
+function addProduct() {
+    if (!auth.currentUser) {
+        alert("Login first!");
+        return;
+    }
+
+    db.collection("products").add({
+        name: name.value,
+        price: price.value,
+        description: description.value,
+        user: auth.currentUser.email,
+        created: new Date()
+    });
+
+    name.value = "";
+    price.value = "";
+    description.value = "";
+}
+
+// DISPLAY PRODUCTS (REALTIME 🔥)
+db.collection("products")
+.onSnapshot(snapshot => {
+    const container = document.getElementById("products");
+    container.innerHTML = "";
+
+    snapshot.forEach(doc => {
+        const p = doc.data();
+
+        container.innerHTML += `
+            <div class="card">
+                <h3>${p.name}</h3>
+                <p>${p.description}</p>
+                <p><b>P${p.price}</b></p>
+                <p><i>${p.user}</i></p>
+            </div>
+        `;
+    });
+});
+</script>
+
+</body>
+</html>
