@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Marketplace</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+
+<style>
+body {
+    font-family: Arial;
+    margin: 0;
+    background: #f4f4f4;
+}
+
+header {
+    background: #1e88e5;
+    color: white;
+    padding: 15px;
+    text-align: center;
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+    padding: 20px;
+}
+
+.box {
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+input, textarea {
+    width: 100%;
+    padding: 10px;
+    margin: 5px 0;
+}
+
+button {
+    padding: 10px;
+    background: #1e88e5;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.card {
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.price {
+    color: green;
+    font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>🎓 Uni Marketplace</h1>
+</header>
+
+<div class="container">
+
+<!-- LOGIN -->
+<div class="box">
+    <h3>Login / Signup</h3>
+    <input id="email" placeholder="Email">
+    <input id="password" type="password" placeholder="Password">
+    <button onclick="signup()">Sign Up</button>
+    <button onclick="login()">Login</button>
+    <button onclick="logout()">Logout</button>
+</div>
+
+<!-- ADD PRODUCT -->
+<div class="box">
+    <h3>Add Product / Service</h3>
+    <input id="name" placeholder="Product name">
+    <input id="price" placeholder="Price (P)">
+    <textarea id="description" placeholder="Description"></textarea>
+    <button onclick="addProduct()">Post</button>
+</div>
+
+<!-- PRODUCTS -->
+<div class="grid" id="products"></div>
+
+</div>
+
+<script>
+// 🔥 PASTE YOUR FIREBASE CONFIG HERE
+const firebaseConfig = {
+  apiKey: "YOUR_KEY",
+  authDomain: "YOUR_DOMAIN",
+  projectId: "YOUR_PROJECT_ID"
+};
+
+// INIT
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
+
+// AUTH FUNCTIONS
+function signup() {
+    auth.createUserWithEmailAndPassword(
+        email.value, password.value
+    ).catch(err => alert(err.message));
+}
+
+function login() {
+    auth.signInWithEmailAndPassword(
+        email.value, password.value
+    ).catch(err => alert(err.message));
+}
+
+function logout() {
+    auth.signOut();
+}
+
+// ADD PRODUCT
+function addProduct() {
+    if (!auth.currentUser) {
+        alert("Please login first");
+        return;
+    }
+
+    db.collection("products").add({
+        name: name.value,
+        price: price.value,
+        description: description.value,
+        user: auth.currentUser.email,
+        created: new Date()
+    });
+
+    name.value = "";
+    price.value = "";
+    description.value = "";
+}
+
+// REALTIME DISPLAY
+db.collection("products").onSnapshot(snapshot => {
+    const container = document.getElementById("products");
+    container.innerHTML = "";
+
+    snapshot.forEach(doc => {
+        const p = doc.data();
+
+        container.innerHTML += `
+            <div class="card">
+                <h3>${p.name}</h3>
+                <p>${p.description}</p>
+                <p class="price">P${p.price}</p>
+                <p><i>${p.user}</i></p>
+            </div>
+        `;
+    });
+});
+</script>
+
+</body>
+</html>
