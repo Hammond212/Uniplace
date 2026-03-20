@@ -117,19 +117,35 @@ const auth = firebase.auth();
 
 // AUTH FUNCTIONS
 function signup() {
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+
+    if (!emailInput.value || !passwordInput.value) {
+        alert("Email and password required");
+        return;
+    }
+
     auth.createUserWithEmailAndPassword(
-        email.value, password.value
+        emailInput.value, passwordInput.value
     ).catch(err => alert(err.message));
 }
 
 function login() {
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+
+    if (!emailInput.value || !passwordInput.value) {
+        alert("Email and password required");
+        return;
+    }
+
     auth.signInWithEmailAndPassword(
-        email.value, password.value
+        emailInput.value, passwordInput.value
     ).catch(err => alert(err.message));
 }
 
 function logout() {
-    auth.signOut();
+    auth.signOut().then(() => alert("Logged out"));
 }
 
 // ADD PRODUCT
@@ -139,21 +155,30 @@ function addProduct() {
         return;
     }
 
-    db.collection("products").add({
-        name: name.value,
-        price: price.value,
-        description: description.value,
-        user: auth.currentUser.email,
-        created: new Date()
-    });
+    const nameInput = document.getElementById("name");
+    const priceInput = document.getElementById("price");
+    const descriptionInput = document.getElementById("description");
 
-    name.value = "";
-    price.value = "";
-    description.value = "";
+    if (!nameInput.value || !priceInput.value || !descriptionInput.value) {
+        alert("All fields are required");
+        return;
+    }
+
+    db.collection("products").add({
+        name: nameInput.value,
+        price: parseFloat(priceInput.value),
+        description: descriptionInput.value,
+        user: auth.currentUser.email,
+        created: firebase.firestore.FieldValue.serverTimestamp()
+    }).then(() => {
+        nameInput.value = "";
+        priceInput.value = "";
+        descriptionInput.value = "";
+    }).catch(err => alert(err.message));
 }
 
 // REALTIME DISPLAY
-db.collection("products").onSnapshot(snapshot => {
+db.collection("products").orderBy("created", "desc").onSnapshot(snapshot => {
     const container = document.getElementById("products");
     container.innerHTML = "";
 
@@ -174,3 +199,4 @@ db.collection("products").onSnapshot(snapshot => {
 
 </body>
 </html>
+
