@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Uni Marketplace</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body { font-family: Arial; margin:0; background:#f4f4f4; }
+header { background:#1e88e5; color:white; padding:15px; text-align:center; }
+.container { max-width:900px; margin:auto; padding:20px; }
+.box { background:white; padding:15px; border-radius:10px; margin-bottom:20px; }
+input, textarea { width:100%; padding:10px; margin:5px 0; }
+button { padding:10px; background:#1e88e5; color:white; border:none; cursor:pointer; }
+.hidden { display:none; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🎓 Uni Marketplace</h1>
+  <!-- Marketplace Icon -->
+  <button onclick="toggleMarketplace()">🛒 Marketplace</button>
+</header>
+
+<div class="container">
+
+<!-- Marketplace Form (hidden until icon clicked) -->
+<div id="marketplaceForm" class="box hidden">
+  <h3>Add Your Business</h3>
+  <input id="businessName" placeholder="Business name">
+  <textarea id="businessDescription" placeholder="Business description"></textarea>
+  <input id="businessImage" type="file">
+  <button onclick="submitBusiness()">Upload</button>
+</div>
+
+<!-- Display Businesses -->
+<div id="businessList"></div>
+
+</div>
+
+<script>
+// Toggle marketplace form visibility
+function toggleMarketplace(){
+  const form=document.getElementById("marketplaceForm");
+  form.classList.toggle("hidden");
+}
+
+// Submit business (basic demo, replace with Firebase logic)
+function submitBusiness(){
+  const name=document.getElementById("businessName").value;
+  const desc=document.getElementById("businessDescription").value;
+  const list=document.getElementById("businessList");
+
+  if(!name||!desc){ alert("Please fill all fields"); return; }
+
+  list.innerHTML+=`
+    <div class="box">
+      <h3>${name}</h3>
+      <p>${desc}</p>
+      <p><i>Image uploaded (demo)</i></p>
+    </div>
+  `;
+
+  // Reset form
+  document.getElementById("businessName").value="";
+  document.getElementById("businessDescription").value="";
+  document.getElementById("businessImage").value="";
+}
+</script>
+
+</body>
+</html>
