@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Uni Marketplace - Invest</title>
+  <style>
+    body { font-family: Arial; margin: 0; }
+    .navbar { background: #333; padding: 10px; }
+    .navbar button { color: white; background: none; border: none; margin-right: 15px; cursor: pointer; }
+    .page { display: none; padding: 20px; }
+    .active { display: block; }
+    .card { border: 1px solid #ccc; padding: 15px; margin: 10px 0; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+<div class="navbar">
+  <button onclick="showPage('home')">Home</button>
+  <button onclick="showPage('invest')">Invest</button>
+</div>
+
+<!-- HOME PAGE -->
+<div id="home" class="page active">
+  <h2>Welcome to Uni Marketplace</h2>
+</div>
+
+<!-- INVEST PAGE -->
+<div id="invest" class="page">
+  <h2>Invest in Businesses</h2>
+  <input type="text" placeholder="Search businesses..." id="searchBox" onkeyup="searchBusiness()">
+  
+  <div id="businessList">
+    <div class="card" onclick="openBusiness('Tech Startup')">Tech Startup</div>
+    <div class="card" onclick="openBusiness('Food Delivery')">Food Delivery</div>
+    <div class="card" onclick="openBusiness('Clothing Brand')">Clothing Brand</div>
+  </div>
+</div>
+
+<!-- BUSINESS PROFILE -->
+<div id="businessProfile" class="page">
+  <h2 id="businessName"></h2>
+  <button onclick="showPage('investmentForm')">Invest</button>
+</div>
+
+<!-- INVESTMENT FORM -->
+<div id="investmentForm" class="page">
+  <h2>Investment Form</h2>
+  <form onsubmit="submitForm(event)">
+    <input type="text" placeholder="Full Name" required><br><br>
+    <input type="number" placeholder="Age" required><br><br>
+    <input type="text" placeholder="Mobile Number" required><br><br>
+    <input type="number" placeholder="Amount to Invest" required><br><br>
+    <input type="file" required><br><br>
+    <button type="submit">Submit Investment</button>
+  </form>
+</div>
+
+<!-- OWNER RESPONSE -->
+<div id="ownerResponse" class="page">
+  <h2>Business Owner Decision</h2>
+  <button onclick="alert('Investment Accepted')">Accept</button>
+  <button onclick="alert('Investment Rejected')">Reject</button>
+</div>
+
+<script>
+function showPage(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(pageId).classList.add('active');
+}
+
+function openBusiness(name) {
+  document.getElementById('businessName').innerText = name;
+  showPage('businessProfile');
+}
+
+function searchBusiness() {
+  let input = document.getElementById('searchBox').value.toLowerCase();
+  let cards = document.querySelectorAll('.card');
+  cards.forEach(card => {
+    let text = card.innerText.toLowerCase();
+    card.style.display = text.includes(input) ? 'block' : 'none';
+  });
+}
+
+function submitForm(e) {
+  e.preventDefault();
+  alert('Investment Submitted! Waiting for approval.');
+  showPage('ownerResponse');
+}
+</script>
+
+</body>
+</html>
